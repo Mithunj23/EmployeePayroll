@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'employee'],
+    enum: ['admin', 'employee'], // Role differentiates login type
     default: 'employee'
   },
   employeeId: {
@@ -34,16 +34,16 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Hash password before saving
+// Pre-save middleware to hash password if new or changed
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Compare password method
+// Method to compare input password with stored hashed password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 module.exports = mongoose.model('User', userSchema);

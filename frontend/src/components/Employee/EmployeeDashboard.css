@@ -1,0 +1,56 @@
+.employee-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-16);
+}
+
+.employee-info-grid label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.employee-info-grid p {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.salary-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-16);
+}
+
+.salary-item {
+  padding: var(--space-16);
+  background: rgba(94, 82, 64, 0.05);
+  border-radius: var(--radius-base);
+}
+
+.salary-item--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-teal-600));
+}
+
+.salary-item--primary .salary-label,
+.salary-item--primary .salary-value {
+  color: white;
+}
+
+.salary-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-8);
+}
+
+.salary-value {
+  display: block;
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.salary-value--negative {
+  color: var(--color-error);
+}

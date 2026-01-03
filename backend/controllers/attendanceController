@@ -1,0 +1,67 @@
+const Attendance = require('../models/Attendance');
+const Employee = require('../models/Employee');
+
+// Mark attendance (admin can mark for any employee, employee only for self)
+exports.markAttendance = async (req, res) => {
+  try {
+    let { employeeId, date, status, checkIn, checkOut, hoursWorked, remarks } = req.body;
+
+    // Employees can only mark their own attendance
+    if (req.user.role === 'employee') {
+      employeeId = req.user.employeeId;
+    }
+
+    // Validate employee exists
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    // Create or update attendance for that day
+    const attendance = await Attendance.findOneAndUpdate(
+      { employeeId, date },
+      { status, checkIn, checkOut, hoursWorked, remarks },
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    res.status(200).json({ success: true, data: attendance });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get all attendance (admin only)
+exports.getAllAttendance = async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    const attendance = await Attendance.find().populate('employeeId', 'firstName lastName employeeCode');
+    res.json({ success: true, count: attendance.length, data: attendance });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get attendance for a specific employee (admin can specify employeeId, employee only owns own data)
+exports.getAttendanceByEmployee = async (req, res) => {
+  try {
+    let employeeId;
+
+    if (req.user.role === 'admin') {
+      // Admin can query any employee attendance by query param employeeId
+      employeeId = req.query.employeeId;
+      if (!employeeId) {
+        return res.status(400).json({ message: 'Employee ID is required' });
+      }
+    } else {
+      // Employee can only get own attendance
+      employeeId = req.user.employeeId;
+    }
+
+    const attendance = await Attendance.find({ employeeId }).sort({ date: -1 });
+    res.json({ success: true, count: attendance.length, data: attendance });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

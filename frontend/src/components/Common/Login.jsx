@@ -7,7 +7,8 @@ const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    role: 'admin', // default role, change to 'employee' if preferred
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,13 +26,22 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.login(formData);
+      // send email, password, role
+      const response = await authAPI.login({ 
+        email: formData.email, 
+        password: formData.password, 
+        role: formData.role 
+      });
       const { token, role, employeeId } = response.data.data;
 
+      // Store token and role info
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
-      if (employeeId) localStorage.setItem('employeeId', employeeId._id);
+      if (employeeId) {
+        localStorage.setItem('employeeId', employeeId._id);
+      }
 
+      // Navigate based on role
       if (role === 'admin') {
         navigate('/admin/dashboard');
       } else {
@@ -53,6 +63,22 @@ const Login = () => {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
+          {/* Role select */}
+          <div className="form-group">
+            <label htmlFor="role">Select Role</label>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              className="form-control"
+            >
+              <option value="admin">Admin</option>
+              <option value="employee">Employee</option>
+            </select>
+          </div>
+
+          {/* Email */}
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -66,6 +92,7 @@ const Login = () => {
             />
           </div>
 
+          {/* Password */}
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -79,6 +106,7 @@ const Login = () => {
             />
           </div>
 
+          {/* Submit button */}
           <button 
             type="submit" 
             className="btn btn--primary btn--full-width"

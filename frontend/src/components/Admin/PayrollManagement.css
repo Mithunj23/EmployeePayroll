@@ -1,0 +1,12 @@
+.payroll-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: var(--space-16);
+  align-items: end;
+}
+
+@media (max-width: 768px) {
+  .payroll-form {
+    grid-template-columns: 1fr;
+  }
+}
